@@ -1,0 +1,172 @@
+{
+  "skill": {
+    "name": "math_exam_generator",
+    "version": "2.0.0",
+    "display_name": "小学数学试卷生成器 (LLM集成版)",
+    "description": "Smart elementary math exam generator with external LLM integration. Generates prompts for LLM and renders beautiful PDF exams.",
+    "author": "Your Name",
+    "created_date": "2026-03-05",
+    "last_updated": "2026-03-05",
+    "architecture": "llm_external"
+  },
+  
+  "capabilities": {
+    "parameter_collection": true,
+    "prompt_generation": true,
+    "pdf_rendering": true,
+    "output_formats": ["PDF"],
+    "languages": ["zh-CN"]
+  },
+  
+  "workflow": {
+    "steps": [
+      {
+        "step": 1,
+        "name": "parameter_collection",
+        "description": "收集用户参数，缺少时返回问题列表",
+        "api": "collect_parameters()"
+      },
+      {
+        "step": 2,
+        "name": "prompt_generation",
+        "description": "根据参数生成 LLM 提示词",
+        "api": "generate_prompt()"
+      },
+      {
+        "step": 3,
+        "name": "llm_generation",
+        "description": "外层 LLM 生成题目内容（由调用方完成）"
+      },
+      {
+        "step": 4,
+        "name": "pdf_output",
+        "description": "接收题目数据，生成 PDF",
+        "api": "generate_exam()"
+      }
+    ]
+  },
+  
+  "parameters": {
+    "grade": {
+      "type": "integer",
+      "required": true,
+      "values": [1, 2, 3],
+      "description": "年级 (1=小一, 2=小二, 3=小三)"
+    },
+    "exam_time": {
+      "type": "integer",
+      "required": false,
+      "min": 1,
+      "max": 120,
+      "default": "auto",
+      "description": "考试时间（分钟），默认根据年级自动设置"
+    },
+    "difficulty": {
+      "type": "string",
+      "required": false,
+      "values": ["简单", "中等", "困难"],
+      "default": "中等",
+      "description": "难度级别"
+    },
+    "topics": {
+      "type": "array",
+      "required": false,
+      "default": "all",
+      "description": "知识点列表，默认包含该年级所有知识点"
+    },
+    "problems": {
+      "type": "array",
+      "required": true,
+      "description": "题目数据（由外层 LLM 生成）",
+      "schema": {
+        "question": "string",
+        "answer": "string",
+        "type": "calculation | word"
+      }
+    }
+  },
+  
+  "knowledge_base": {
+    "grade_1": [
+      {"name": "顺数和倒数，奇数和偶数", "type": "number_concepts"},
+      {"name": "加法（个位）", "type": "addition_single"},
+      {"name": "加法（两位数）", "type": "addition_double"},
+      {"name": "减法（个位）", "type": "subtraction_single"},
+      {"name": "减法（两位数）", "type": "subtraction_double"},
+      {"name": "加减混合（个位）", "type": "mixed_single"}
+    ],
+    "grade_2": [
+      {"name": "加法（三位数）", "type": "addition_triple"},
+      {"name": "加法（多位数）", "type": "addition_multi"},
+      {"name": "减法（三位数）", "type": "subtraction_triple"},
+      {"name": "减法（多位数）", "type": "subtraction_multi"},
+      {"name": "加减混合（多位数）", "type": "mixed_multi"},
+      {"name": "乘法（个位）", "type": "multiplication_single"}
+    ],
+    "grade_3": [
+      {"name": "乘法（三位数）", "type": "multiplication_triple"},
+      {"name": "除法（三位数）", "type": "division_triple"},
+      {"name": "四则运算（三位数）", "type": "four_operations"},
+      {"name": "时间（进阶）", "type": "time_advanced"},
+      {"name": "货币（进阶）", "type": "money_advanced"},
+      {"name": "棒形图", "type": "bar_chart"}
+    ]
+  },
+  
+  "api": {
+    "functions": [
+      {
+        "name": "collect_parameters",
+        "description": "收集和验证参数",
+        "parameters": ["grade", "exam_time", "difficulty", "topics"],
+        "returns": {
+          "complete": "boolean",
+          "parameters": "object (if complete)",
+          "questions": "array (if incomplete)"
+        }
+      },
+      {
+        "name": "generate_prompt",
+        "description": "生成 LLM 提示词",
+        "parameters": ["grade", "exam_time", "difficulty", "topics"],
+        "returns": {
+          "system_prompt": "string",
+          "user_prompt": "string",
+          "expected_format": "object",
+          "num_problems": "integer"
+        }
+      },
+      {
+        "name": "generate_exam",
+        "description": "从题目数据生成 PDF",
+        "parameters": ["grade", "exam_time", "difficulty", "problems", "output_dir"],
+        "returns": {
+          "success": "boolean",
+          "exam_file": "string",
+          "answer_file": "string",
+          "metadata": "object"
+        }
+      },
+      {
+        "name": "get_skill_info",
+        "description": "获取 Skill 信息",
+        "parameters": [],
+        "returns": "object"
+      }
+    ]
+  },
+  
+  "dependencies": {
+    "python": ">=3.7",
+    "packages": [
+      "weasyprint>=60.0",
+      "matplotlib>=3.7.0"
+    ]
+  },
+  
+  "integration_notes": {
+    "llm_requirements": "外层 LLM 需要支持 JSON 格式输出",
+    "prompt_template": "使用 generate_prompt() 获取完整提示词",
+    "problem_format": "题目必须包含 question, answer, type 三个字段"
+  }
+}
