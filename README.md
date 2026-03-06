@@ -1,35 +1,35 @@
 # Math Exam Generator
 
-AI 驱动的小学数学试卷生成器（小一至小三），支持自动生成 PDF 试卷与图表。
+AI 驅動的小學數學試卷生成器（小一至小三），支援自動生成 PDF 試卷與圖表。
 
-## 项目简介
+## 專案簡介
 
-本项目采用 **LLM 外置架构**，通过生成精准的提示词交由外部 LLM 生成题目内容，再由本系统负责 PDF 渲染与图表生成，实现高效、低成本的试卷自动化生成。
+本專案採用 **LLM 外置架構**，透過生成精準的提示詞交由外部 LLM 生成題目內容，再由本系統負責 PDF 渲染與圖表生成，實現高效、低成本的試卷自動化生成。
 
-支持四种题型：计算题、选择题、应用题、图表题，以及三种自动图表：棒形图、时钟、数线。
+支援四種題型：計算題、選擇題、應用題、圖表題，以及三種自動圖表：棒形圖、時鐘、數線。
 
-## 技术架构
+## 技術架構
 
 ```
-用户输入参数
+使用者輸入參數
     ↓
-collect_parameters()   # 参数收集与验证
+collect_parameters()   # 參數收集與驗證
     ↓
-generate_prompt()      # 生成 LLM 提示词
+generate_prompt()      # 生成 LLM 提示詞
     ↓
-外部 LLM               # 生成题目数据（JSON）
+外部 LLM               # 生成題目資料（JSON）
     ↓
-generate_exam()        # PDF 渲染 + matplotlib 图表生成
+generate_exam()        # PDF 渲染 + matplotlib 圖表生成
     ↓
-输出 PDF（试卷 + 答案卷）
+輸出 PDF（試卷 + 答案卷）
 ```
 
-**核心依赖：**
-- `weasyprint` — HTML/CSS 转 PDF
-- `matplotlib` — 自动生成图表
-- 外部 LLM — 题目内容生成（不内置）
+**核心依賴：**
+- `weasyprint` — HTML/CSS 轉 PDF
+- `matplotlib` — 自動生成圖表
+- 外部 LLM — 題目內容生成（不內建）
 
-## 快速开始
+## 快速開始
 
 ```bash
 pip install -r requirements.txt
@@ -41,21 +41,21 @@ from skill import collect_parameters, generate_prompt, generate_exam
 params = collect_parameters(grade=2, difficulty="中等")
 prompt = generate_prompt(**params["parameters"])
 
-# 调用外部 LLM 获取 problems...
+# 呼叫外部 LLM 取得 problems...
 
 result = generate_exam(grade=2, exam_time=60, difficulty="中等", problems=problems)
-# 输出: result["exam_file"], result["answer_file"]
+# 輸出: result["exam_file"], result["answer_file"]
 ```
 
-## 文件结构
+## 檔案結構
 
 ```
-├── skill.py            # 核心逻辑（参数收集、提示词生成、PDF 渲染）
-├── knowledge_base.py   # 18 个知识点定义（3 个年级）
-├── config.py           # PDF 样式与默认配置
-├── skill_manifest.json # API 元数据
-├── requirements.txt    # 依赖列表
-└── output/             # 生成的 PDF 文件
+├── skill.py            # 核心邏輯（參數收集、提示詞生成、PDF 渲染）
+├── knowledge_base.py   # 18 個知識點定義（3 個年級）
+├── config.py           # PDF 樣式與預設設定
+├── skill_manifest.json # API 元資料
+├── requirements.txt    # 依賴清單
+└── output/             # 生成的 PDF 檔案
 ```
 
 ## License
